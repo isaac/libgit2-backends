@@ -282,7 +282,6 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 		error = GIT_ERROR;
 	}
 
-	freeReplyObject(reply);
 	return error;
 }
 
@@ -595,4 +594,3 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 
 	return GIT_OK;
 }
-
