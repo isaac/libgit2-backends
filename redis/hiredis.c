@@ -277,28 +277,14 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb couldn't find ref");
 			error = GIT_ENOTFOUND;
 		}
-    freeReplyObject(reply);
 	} else {
     printf("Redis refdb storage error\n");
-    if(reply) {
-      printf("reply exists\n");
-      switch(reply->type) {
-      case REDIS_REPLY_INTEGER:
-        printf("REDIS_REPLY_INTEGER\n");
-      case REDIS_REPLY_ERROR:
-        printf("REDIS_REPLY_ERROR\n");
-      case REDIS_REPLY_STATUS:
-        printf("REDIS_REPLY_STATUS\n");
-      case REDIS_REPLY_STRING:
-        printf("REDIS_REPLY_STRING\n");
-      }
-    } else {
-      printf("reply does not exist\n");
-    }
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
 		error = GIT_ERROR;
 	}
-
+  if (!reply) { printf("Freeing reply\n"); }
+  freeReplyObject(reply);
+  if (!reply) { printf("Freed reply\n"); }
 	return error;
 }
 
