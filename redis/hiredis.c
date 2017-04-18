@@ -258,46 +258,47 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 
 	backend = (hiredis_refdb_backend *) _backend;
 
-  printf("set reply\n");
-
 	reply = redisCommand(backend->db, "HMGET %s:%s:refdb:%s type target", backend->prefix, backend->repo_path, ref_name);
 	if(reply && reply->type == REDIS_REPLY_ARRAY) {
-    printf("reply is an array\n");
 		if (reply->element[0]->type != REDIS_REPLY_NIL && reply->element[1]->type != REDIS_REPLY_NIL) {
-      printf("reply has 2 non-nil elements\n");
-
 			git_ref_t type = (git_ref_t) atoi(reply->element[0]->str);
 
 			if (type == GIT_REF_OID) {
-        printf("type == GIT_REF_OID\n");
-
 				git_oid_fromstr(&oid, reply->element[1]->str);
 				*out = git_reference__alloc(ref_name, &oid, NULL);
 			} else if (type == GIT_REF_SYMBOLIC) {
-        printf("type == GIT_REF_SYMBOLIC\n");
-
 				*out = git_reference__alloc_symbolic(ref_name, reply->element[1]->str);
 			} else {
-        printf("Redis refdb storage corrupted (unknown ref type returned)\n");
-
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage corrupted (unknown ref type returned)");
 				error = GIT_ERROR;
 			}
 
 		} else {
-      printf("Redis refdb couldn't find ref\n");
-
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb couldn't find ref");
 			error = GIT_ENOTFOUND;
 		}
+    freeReplyObject(reply);
 	} else {
     printf("Redis refdb storage error\n");
-
+    if(reply) {
+      printf("reply exists\n");
+      switch(reply->type) {
+      case REDIS_REPLY_INTEGER:
+        printf("REDIS_REPLY_INTEGER\n");
+      case REDIS_REPLY_ERROR:
+        printf("REDIS_REPLY_ERROR\n");
+      case REDIS_REPLY_STATUS:
+        printf("REDIS_REPLY_STATUS\n");
+      case REDIS_REPLY_STRING:
+        printf("REDIS_REPLY_STRING\n");
+      }
+    } else {
+      printf("reply does not exist\n");
+    }
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
 		error = GIT_ERROR;
 	}
-  printf("freeReplyObject\n");
-  freeReplyObject(reply);
+
 	return error;
 }
 
