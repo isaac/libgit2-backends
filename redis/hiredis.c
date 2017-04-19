@@ -184,12 +184,12 @@ int hiredis_odb_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 	if (reply && reply->type == REDIS_REPLY_INTEGER)
 		found = reply->integer;
 
-    printf("Start free(str_id)\n");
-  	free(str_id);
-    printf("End free(str_id)\n");
-    printf("Start freeReplyObject(reply)\n");
-  	freeReplyObject(reply);
-    printf("End freeReplyObject(reply)\n");
+  printf("Start free(str_id)\n");
+	free(str_id);
+  printf("End free(str_id)\n");
+  printf("Start freeReplyObject(reply)\n");
+	freeReplyObject(reply);
+  printf("End freeReplyObject(reply)\n");
 	return found;
 }
 
