@@ -280,6 +280,9 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 	} else {
     if (backend->db->err) {
       printf("REDIS_ERR: %s\n", backend->db->errstr);
+      if (backend->db->err == REDIS_ERR_EOF) {
+        printf("REDIS_ERR_EOF");
+      }
     }
     printf("Redis refdb storage error\n");
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
