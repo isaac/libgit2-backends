@@ -91,8 +91,12 @@ int hiredis_odb_backend__read_header(size_t *len_p, git_otype *type_p, git_odb_b
 		error = GIT_ERROR;
 	}
 
+  printf("Start free(str_id)\n");
 	free(str_id);
+  printf("End free(str_id)\n");
+  printf("Start freeReplyObject(reply)\n");
 	freeReplyObject(reply);
+  printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
@@ -135,8 +139,12 @@ int hiredis_odb_backend__read(void **data_p, size_t *len_p, git_otype *type_p, g
 		error = GIT_ERROR;
 	}
 
+  printf("Start free(str_id)\n");
 	free(str_id);
+  printf("End free(str_id)\n");
+  printf("Start freeReplyObject(reply)\n");
 	freeReplyObject(reply);
+  printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
@@ -176,8 +184,12 @@ int hiredis_odb_backend__exists(git_odb_backend *_backend, const git_oid *oid)
 	if (reply && reply->type == REDIS_REPLY_INTEGER)
 		found = reply->integer;
 
-	free(str_id);
-	freeReplyObject(reply);
+    printf("Start free(str_id)\n");
+  	free(str_id);
+    printf("End free(str_id)\n");
+    printf("Start freeReplyObject(reply)\n");
+  	freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
 	return found;
 }
 
@@ -200,29 +212,43 @@ int hiredis_odb_backend__write(git_odb_backend *_backend, const git_oid *oid, co
 			"size %d "
 			"data %b ", backend->prefix, backend->repo_path, str_id,
 			(int) type, len, data, len);
+  printf("Start free(str_id)\n");
 	free(str_id);
+  printf("End free(str_id)\n");
 
 	error = (reply == NULL || reply->type == REDIS_REPLY_ERROR) ? GIT_ERROR : GIT_OK;
 
-	freeReplyObject(reply);
+    printf("Start freeReplyObject(reply)\n");
+    freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
 void hiredis_odb_backend__free(git_odb_backend *_backend)
 {
+  printf("Start hiredis_odb_backend__free(git_odb_backend *_backend)\n");
+
 	hiredis_odb_backend *backend;
 
 	assert(_backend);
 	backend = (hiredis_odb_backend *) _backend;
 
+  printf("Start free(backend->repo_path)\n");
 	free(backend->repo_path);
+  printf("End free(backend->repo_path)\n");
+  printf("Start free(backend->prefix)\n");
 	free(backend->prefix);
+  printf("End free(backend->prefix)\n");
 
+
+  printf("Start redisFree(backend->db)\n");
 	redisFree(backend->db);
+  printf("End redisFree(backend->db)\n");
 
-  printf("Freeing backend\n");
+  printf("Start free(backend);\n");
   free(backend);
-  printf("Freed backend\n");
+  printf("End free(backend);\n");
+  printf("End hiredis_odb_backend__free(git_odb_backend *_backend)\n");
 }
 
 /* Refdb methods */
@@ -245,7 +271,9 @@ int hiredis_refdb_backend__exists(int *exists, git_refdb_backend *_backend, cons
 		error = GIT_ERROR;
 	}
 
-	freeReplyObject(reply);
+    printf("Start freeReplyObject(reply)\n");
+    freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
@@ -296,9 +324,9 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
 		error = GIT_ERROR;
 	}
-  if (!reply) { printf("Freeing reply\n"); }
+  printf("Start freeReplyObject(reply)\n");
   freeReplyObject(reply);
-  if (!reply) { printf("Freed reply\n"); }
+  printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
@@ -337,14 +365,21 @@ int hiredis_refdb_backend__iterator_next_name(const char **ref_name, git_referen
 }
 
 void hiredis_refdb_backend__iterator_free(git_reference_iterator *_iter) {
+  printf("Start hiredis_refdb_backend__iterator_free(git_reference_iterator *_iter)\n");
+
 	hiredis_refdb_iterator *iter;
 
 	assert(_iter);
 	iter = (hiredis_refdb_iterator *) _iter;
 
-	freeReplyObject(iter->keys);
+    printf("Start freeReplyObject(iter->keys)\n");
+    freeReplyObject(iter->keys);
+    printf("End freeReplyObject(iter->keys)\n");
 
-	free(iter);
+    printf("Start free(iter)\n");
+  	free(iter);
+    printf("End free(iter)\n");
+    printf("End hiredis_refdb_backend__iterator_free(git_reference_iterator *_iter)\n");
 }
 
 int hiredis_refdb_backend__iterator(git_reference_iterator **_iter, struct git_refdb_backend *_backend, const char *glob)
@@ -360,7 +395,9 @@ int hiredis_refdb_backend__iterator(git_reference_iterator **_iter, struct git_r
 
 	reply = redisCommand(backend->db, "KEYS %s:%s:refdb:%s", backend->prefix, backend->repo_path, (glob != NULL ? glob : "refs/*"));
 	if(reply && reply->type != REDIS_REPLY_ARRAY) {
-		freeReplyObject(reply);
+        printf("Start freeReplyObject(reply)\n");
+        freeReplyObject(reply);
+        printf("End freeReplyObject(reply)\n");
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
 		return GIT_ERROR;
 	}
@@ -413,8 +450,10 @@ int hiredis_refdb_backend__write(git_refdb_backend *_backend, const git_referenc
 		error = GIT_ERROR;
 	}
 
-	freeReplyObject(reply);
-	return error;
+    printf("Start freeReplyObject(reply)\n");
+    freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
+  	return error;
 }
 
 int hiredis_refdb_backend__rename(git_reference **out, git_refdb_backend *_backend, const char *old_name,
@@ -431,13 +470,17 @@ int hiredis_refdb_backend__rename(git_reference **out, git_refdb_backend *_backe
 	reply = redisCommand(backend->db, "RENAME %s:%s:refdb:%s %s:%s:refdb:%s",
 						backend->prefix, backend->repo_path, old_name, backend->prefix, backend->repo_path, new_name);
 	if(reply && reply->type == REDIS_REPLY_ERROR) {
-		freeReplyObject(reply);
+        printf("Start freeReplyObject(reply)\n");
+        freeReplyObject(reply);
+        printf("End freeReplyObject(reply)\n");
 
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
 		return GIT_ERROR;
 	}
 
-	freeReplyObject(reply);
+    printf("Start freeReplyObject(reply)\n");
+    freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
 	return hiredis_refdb_backend__lookup(out, _backend, new_name);
 }
 
@@ -457,28 +500,36 @@ int hiredis_refdb_backend__del(git_refdb_backend *_backend, const char *ref_name
 		error = GIT_ERROR;
 	}
 
-	freeReplyObject(reply);
+    printf("Start freeReplyObject(reply)\n");
+    freeReplyObject(reply);
+    printf("End freeReplyObject(reply)\n");
 	return error;
 }
 
 void hiredis_refdb_backend__free(git_refdb_backend *_backend)
 {
-  printf("starting hiredis_refdb_backend__free\n");
+  printf("Start hiredis_refdb_backend__free(git_refdb_backend *_backend)\n");
 
 	hiredis_refdb_backend *backend;
 
 	assert(_backend);
 	backend = (hiredis_refdb_backend *) _backend;
 
+  printf("Start free(backend->repo_path)\n");
 	free(backend->repo_path);
+  printf("End free(backend->repo_path)\n");
+  printf("Start free(backend->prefix)\n");
 	free(backend->prefix);
+  printf("End free(backend->prefix)\n");
 
+  printf("Start redisFree(backend->db)\n");
 	redisFree(backend->db);
+  printf("End redisFree(backend->db)\n");
 
-  printf("Freeing backend\n");
+  printf("Start free(backend)\n");
   free(backend);
-  printf("Freed backend\n");
-  printf("Ending hiredis_refdb_backend__free\n");
+  printf("End free(backend)\n");
+  printf("End hiredis_refdb_backend__free(git_refdb_backend *_backend)\n");
 
 }
 
@@ -529,9 +580,9 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 		sharedConnection = redisConnect(host, port);
 		if (sharedConnection->err) {
       printf("Redis odb storage couldn't connect to redis server\n");
-      printf("Freeing backend\n");
+      printf("Start free(backend)\n");
 			free(backend);
-      printf("Freed backend\n");
+      printf("End free(backend)\n");
 			giterr_set_str(GITERR_REFERENCE, "Redis odb storage couldn't connect to redis server");
 			return GIT_ERROR;
 		}
@@ -543,7 +594,9 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 				giterr_set_str(GITERR_REFERENCE, "Redis odb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
-			freeReplyObject(reply);
+          printf("Start freeReplyObject(reply)\n");
+        	freeReplyObject(reply);
+          printf("End freeReplyObject(reply)\n");
 		}
 	}
 
@@ -582,9 +635,9 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 		sharedConnection = redisConnect(host, port);
 		if (sharedConnection->err) {
       printf("Redis refdb storage couldn't connect to redis server\n");
-      printf("Freeing backend\n");
+      printf("Start free(backend)\n");
 			free(backend);
-      printf("Freed backend\n");
+      printf("End free(backend)\n");
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb storage couldn't connect to redis server");
 			return GIT_ERROR;
 		}
@@ -596,7 +649,9 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
-			freeReplyObject(reply);
+      printf("Start freeReplyObject(reply)\n");
+    	freeReplyObject(reply);
+      printf("End freeReplyObject(reply)\n");
 		}
 	}
 
