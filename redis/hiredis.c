@@ -220,7 +220,9 @@ void hiredis_odb_backend__free(git_odb_backend *_backend)
 
 	redisFree(backend->db);
 
-	free(backend);
+  printf("Freeing backend\n");
+  free(backend);
+  printf("Freed backend\n");
 }
 
 /* Refdb methods */
@@ -461,6 +463,8 @@ int hiredis_refdb_backend__del(git_refdb_backend *_backend, const char *ref_name
 
 void hiredis_refdb_backend__free(git_refdb_backend *_backend)
 {
+  printf("starting hiredis_refdb_backend__free\n");
+
 	hiredis_refdb_backend *backend;
 
 	assert(_backend);
@@ -471,7 +475,11 @@ void hiredis_refdb_backend__free(git_refdb_backend *_backend)
 
 	redisFree(backend->db);
 
-	free(backend);
+  printf("Freeing backend\n");
+  free(backend);
+  printf("Freed backend\n");
+  printf("Ending hiredis_refdb_backend__free\n");
+
 }
 
 /* reflog methods */
@@ -520,7 +528,10 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 	if (sharedConnection == NULL) {
 		sharedConnection = redisConnect(host, port);
 		if (sharedConnection->err) {
+      printf("Redis odb storage couldn't connect to redis server\n");
+      printf("Freeing backend\n");
 			free(backend);
+      printf("Freed backend\n");
 			giterr_set_str(GITERR_REFERENCE, "Redis odb storage couldn't connect to redis server");
 			return GIT_ERROR;
 		}
@@ -528,6 +539,7 @@ int git_odb_backend_hiredis(git_odb_backend **backend_out, const char* prefix, c
 		if(password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
 			if (reply && reply->type == REDIS_REPLY_ERROR) {
+        printf("Redis odb storage authentication with redis server failed\n");
 				giterr_set_str(GITERR_REFERENCE, "Redis odb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
@@ -569,7 +581,10 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 	if (sharedConnection == NULL) {
 		sharedConnection = redisConnect(host, port);
 		if (sharedConnection->err) {
+      printf("Redis refdb storage couldn't connect to redis server\n");
+      printf("Freeing backend\n");
 			free(backend);
+      printf("Freed backend\n");
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb storage couldn't connect to redis server");
 			return GIT_ERROR;
 		}
@@ -577,6 +592,7 @@ int git_refdb_backend_hiredis(git_refdb_backend **backend_out, const char* prefi
 		if(password != NULL) {
 			reply = redisCommand(sharedConnection, "AUTH %s", password);
 			if (reply && reply->type == REDIS_REPLY_ERROR) {
+        printf("Redis refdb storage authentication with redis server failed\n");
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage authentication with redis server failed");
 				return GIT_ERROR;
 			}
