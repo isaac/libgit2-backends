@@ -269,17 +269,20 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 			} else if (type == GIT_REF_SYMBOLIC) {
 				*out = git_reference__alloc_symbolic(ref_name, reply->element[1]->str);
 			} else {
+        printf("Redis refdb storage corrupted (unknown ref type returned)\n");
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage corrupted (unknown ref type returned)");
 				error = GIT_ERROR;
 			}
 
 		} else {
+      printf("Redis refdb couldn't find ref\n");
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb couldn't find ref");
 			error = GIT_ENOTFOUND;
 		}
 	} else {
     if (backend->db->err) {
       printf("REDIS_ERR: %s\n", backend->db->errstr);
+      printf("REDIS_ERR type: %d\n", backend->db->err);
       if (backend->db->err == REDIS_ERR_EOF) {
         printf("REDIS_ERR_EOF");
       }
