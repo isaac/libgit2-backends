@@ -524,6 +524,7 @@ void hiredis_refdb_backend__free(git_refdb_backend *_backend)
 
   printf("Start redisFree(backend->db)\n");
 	redisFree(backend->db);
+  backend->db = NULL;
   printf("End redisFree(backend->db)\n");
 
   printf("Start free(backend)\n");
