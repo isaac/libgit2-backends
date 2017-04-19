@@ -270,12 +270,14 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
 				*out = git_reference__alloc_symbolic(ref_name, reply->element[1]->str);
 			} else {
         printf("Redis refdb storage corrupted (unknown ref type returned)\n");
+        printf("HMGET %s:%s:refdb:%s type target\n", backend->prefix, backend->repo_path, ref_name);
 				giterr_set_str(GITERR_REFERENCE, "Redis refdb storage corrupted (unknown ref type returned)");
 				error = GIT_ERROR;
 			}
 
 		} else {
       printf("Redis refdb couldn't find ref\n");
+      printf("HMGET %s:%s:refdb:%s type target\n", backend->prefix, backend->repo_path, ref_name);
 			giterr_set_str(GITERR_REFERENCE, "Redis refdb couldn't find ref");
 			error = GIT_ENOTFOUND;
 		}
@@ -283,8 +285,9 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
     if (backend->db->err) {
       printf("REDIS_ERR: %s\n", backend->db->errstr);
       printf("REDIS_ERR type: %d\n", backend->db->err);
+      printf("HMGET %s:%s:refdb:%s type target\n", backend->prefix, backend->repo_path, ref_name);
       if (backend->db->err == REDIS_ERR_EOF) {
-        printf("REDIS_ERR_EOF");
+        printf("REDIS_ERR_EOF\n");
       }
     }
     printf("Redis refdb storage error\n");
