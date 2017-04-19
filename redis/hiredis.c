@@ -292,7 +292,7 @@ int hiredis_refdb_backend__lookup(git_reference **out, git_refdb_backend *_backe
     }
     printf("Redis refdb storage error\n");
 		giterr_set_str(GITERR_REFERENCE, "Redis refdb storage error");
-		error = GIT_ERROR;
+		error = GIT_ENOTFOUND;
 	}
   if (!reply) { printf("Freeing reply\n"); }
   freeReplyObject(reply);
